@@ -1,0 +1,25 @@
+# Ignore PDF files
+*.pdf
+
+# Ignore Python byte-compiled files
+__pycache__/
+
+# Ignore subfolders in the output directory
+output/*/
+
+# Ignore subfolders in the database directory
+qa_engine/database/*/
+qa_engine/database/*.sqlite3
+
+# Ignore anything within the relevance directory
+qa_engine/relevance/*/
+qa_engine/relevance/*.json
+
+# Ignore anything within the input directory
+input/**
+
+# Ignore anything withing the ocr_engine directory
+ocr_engine/**
+
+#Ignore sqlite files
+*.sqlite

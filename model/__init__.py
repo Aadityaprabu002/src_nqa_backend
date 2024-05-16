@@ -1,0 +1,4 @@
+from rectangle_coordinate import RectangleCoordinate
+from article_component import ArticleComponent
+from ad_component import AdComponent
+from newspaper_component import NewspaperComponent

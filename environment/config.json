@@ -1,0 +1,12 @@
+{
+  "YoloV8NewspaperAllClassPath": "./trained_model_weights/yolov8_newspaper_all_class/v12-yolov8l.pt",
+  "YoloV8NewspaperOnlyArticle": "./trained_model_weights/yolov8_newspaper_only_article/v4-yolov8l.pt",
+  "YoloV8NewspaperOnlyAd": "./trained_model_weights/yolov8_newspaper_only_ad/v2-yolov8s.pt",
+  "RootOutputPath": "./output",
+  "DatabasePath": "./qa_engine/database/",
+  "CollectionName": "newspapers",
+  "DatabaseAllowReset": true,
+  "SentenceTransformerModel": "all-MiniLM-L6-v2",
+  "RelevanceScorePath": "./qa_engine/relevance/",
+  "OcrEnginePath": "./ocr_engine/tesseract/tesseract.exe"
+}
