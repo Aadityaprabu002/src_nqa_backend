@@ -117,10 +117,10 @@ Follow these steps to get started with the project:
    cd src_nqa_backend
    ```
 
-2. **Run `app.py`** using the virtual environment:
+2. **To Run `app.py`** using the virtual environment:
 
    ```sh
-   python app.py
+   uvicorn app:app
    ```
 
 ## Usage
