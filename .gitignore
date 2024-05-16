@@ -16,7 +16,7 @@ qa_engine/relevance/*/
 qa_engine/relevance/*.json
 
 # Ignore anything within the input directory
-input/**
+input/*/
 
 # Ignore anything withing the ocr_engine directory
 ocr_engine/**
