@@ -4,17 +4,17 @@ from langchain_community.document_loaders import JSONLoader
 from langchain_community.vectorstores import Chroma
 from app_config import config
 from util.progress_bar import ProgressBar
-from newspaper_database_connection import NewspaperDatabaseConnectionAndContext
+from feedback_database_connection import FeedbackDatabaseConnectionAndContext
 
 
-class NewspaperDatabaseSearcher:
+class FeedbackDatabaseSearcher:
     def __init__(
         self,
-        ndbcc: NewspaperDatabaseConnectionAndContext,
+        fdbcc: FeedbackDatabaseConnectionAndContext,
     ) -> None:
 
-        self.__langchain_chroma_client = ndbcc.get_langchain_chroma_client()
-        print("NewspaperDatabaseSearcher initialized successfully.")
+        self.__langchain_chroma_client = fdbcc.get_langchain_chroma_client()
+        print("FeedbackDatabaseSearcher initialized successfully.")
 
     def search(self, query: str, top_k: int = 5):
         progress_bar = ProgressBar(1, "Searching")

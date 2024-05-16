@@ -46,6 +46,16 @@ class NewspaperQueryAssistant:
 
         self.newspaper_info = {"articles": [], "ads": []}
 
+        self.feedback_database_connection_and_context = (
+            FeedbackDatabaseConnectionAndContext()
+        )
+        self.feedback_database_indexer = FeedbackDatabaseIndexer(
+            self.feedback_database_connection_and_context
+        )
+        self.feedback_database_searcher = FeedbackDatabaseSearcher(
+            self.feedback_database_connection_and_context
+        )
+
         print("NewspaperQueryAssistant initialized successfully.")
 
     def __save_info(self, page_folder_path, page_info):
@@ -153,6 +163,10 @@ class NewspaperQueryAssistant:
         documents = self.newspaper_database_searcher.search(question)
         return documents
 
+    def feedback_search(self, question):
+        documents = self.feedback_database_searcher.search(question)
+        return documents
+
     def answer(self, question):
 
         documents = self.show(question)
@@ -163,7 +177,10 @@ class NewspaperQueryAssistant:
 
         return answers, documents
 
-    def add_relevance_score(self, question, relevance_list, relevant_article_id_list):
-        self.newspaper_question_answerer.add_relevance_score(
-            question, relevance_list, relevant_article_id_list
-        )
+    def add_feedback(self, question, relevancy_list, article_id_list):
+        feedback = {
+            "question": question,
+            "relevancy-list": relevancy_list,
+            "article-id-list": article_id_list,
+        }
+        self.feedback_database_indexer.add_feedback(feedback)

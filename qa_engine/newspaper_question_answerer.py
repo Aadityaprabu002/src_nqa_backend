@@ -1,12 +1,10 @@
 from transformers import pipeline
-import json
 from util.progress_bar import ProgressBar
 from langchain_core.documents import Document
-from app_config import config
-import uuid
 
 
 class NewspaperQuestionAnswerer:
+
     def __init__(self):
         self.roberta = pipeline(
             "question-answering",
@@ -14,33 +12,6 @@ class NewspaperQuestionAnswerer:
             tokenizer="deepset/roberta-base-squad2",
         )
         print("ArticleQuestionAnswering model loaded successfully.")
-
-    def add_relevance_score(self, question, relevance_list, relevant_article_id_list):
-        l = len(relevance_list)
-        score = 0
-        for relevance in relevance_list:
-            if relevance == "Relevant":
-                score += 1
-            elif relevance == "UnAnswered":
-                l -= 1
-
-        score = score / l
-        info = ""
-        path = config["RelevanceScorePath"]
-
-        with open(f"{path}/relevance_score.json", "r") as file:
-            info = json.load(file)
-
-        data = {
-            "question-id": str(uuid.uuid4()),
-            "question": question,
-            "score": score,
-            "relevant-article-id-list": relevant_article_id_list,
-            "relevance-list": relevance_list,
-        }
-        info.append(data)
-        with open(f"{path}/relevance_score.json", "w") as file:
-            json.dump(info, file)
 
     def extract_answer(self, question, document: Document):
 

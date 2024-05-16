@@ -9,7 +9,7 @@ class NewspaperDatabaseIndexer:
     def __init__(self, ndbcc: NewspaperDatabaseConnectionAndContext) -> None:
         self.__collection = ndbcc.get_newspaper_collection()
         print("NewspaperDatabaseIndexer initialized successfully.")
-
+    
     def add_articles(self, articles):
         documents = []
         metadatas = []

@@ -7,17 +7,17 @@ import os
 import json
 
 
-class NewspaperDatabaseConnectionAndContext:
+class FeedbackDatabaseConnectionAndContext:
     def __init__(self) -> None:
 
         self.__settings = Settings()
-        self.__settings.allow_reset = config["NewspaperDatabaseAllowReset"]
+        self.__settings.allow_reset = config["FeedbackDatabaseAllowReset"]
         self.__chroma_client = chromadb.PersistentClient(
-            path=config["NewspaperDatabasePath"], settings=self.__settings
+            path=config["FeedbackDatabasePath"], settings=self.__settings
         )
         self.__reset()
         self.__collection = self.__chroma_client.get_or_create_collection(
-            config["NewspaperDatabaseCollectionName"]
+            config["FeedbackDatabaseCollectionName"]
         )
         self.__embedding_function = SentenceTransformerEmbeddings(
             model_name=config["SentenceTransformerModel"]
@@ -25,19 +25,21 @@ class NewspaperDatabaseConnectionAndContext:
         self.__langchain_chroma_client = Chroma(
             embedding_function=self.__embedding_function,
             client=self.__chroma_client,
-            collection_name=config["NewspaperDatabaseCollectionName"],
+            collection_name=config["FeedbackDatabaseCollectionName"],
         )
-        os.makedirs(config["RelevanceScorePath"], exist_ok=True)
-        path = f"{config['RelevanceScorePath']}/relevance_score.json"
+
+        os.makedirs(config["FeedbackDatabasePath"], exist_ok=True)
+        path = f"""{config["FeedbackDatabasePath"]}/feedback.json"""
         with open(path, "w") as file:
             json.dump([], file)
-        print("NewspaperDatabaseConnectionAndContext initialized successfully.")
+
+        print("FeedbackDatabaseConnectionAndContext initialized successfully.")
 
     def __reset(self):
         self.__chroma_client.reset()
-        print("NewspaperDatabaseConnectionAndContext reset successfully.")
+        print("FeedbackDatabaseConnectionAndContext reset successfully.")
 
-    def get_newspaper_collection(self):
+    def get_feedback_collection(self):
         return self.__collection
 
     def get_langchain_chroma_client(self):

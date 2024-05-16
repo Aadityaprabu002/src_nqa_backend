@@ -1,10 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, Request
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import sys
 import os
-import json
 import base64
 
 sys.path.append("./model")
@@ -42,9 +40,8 @@ async def answer(request: Request):
     global current_filename
     request_data = await request.json()
     question = request_data["question"]
-
-    # if filename != current_filename:
-    #     return {"error": "Please process the PDF first"}
+    if question == "" or question is None:
+        return {"error": "Question not found"}
 
     answers, documents = newspaper_query_assistant.answer(question)
     articles = []
@@ -104,45 +101,43 @@ async def process(file: UploadFile = File(...)):
         }
 
 
-# @app.post("/load")
-# async def load(request: Request):
-
-#     request_data = await request.json()
-#     predict = request_data["predict"]
-#     global current_filename
-#     progress_bar = ProgressBar(1, "Loading PDF")
-#     loaded = newspaper_query_assistant.load_newspaper_database(predict)
-#     progress_bar.update()
-#     progress_bar.complete()
-#     current_filename = predict
-#     if loaded:
-#         return {
-#             "message": f"{predict} loaded successfully",
-#             "status": "success",
-#         }
-#     return {
-#         "message": f"{predict} not found",
-#         "status": "failed",
-#     }
-
-
-@app.get("/predicts")
-def predicts():
-    return {"predicts": os.listdir(config["RootOutputPath"])}
-
-
-@app.post("/relevance")
-async def relevance(request: Request):
+@app.get("/feedback")
+async def get_feedback(request: Request):
     request_data = await request.json()
-    if "relevance_list" not in request_data:
-        return {"error": "Relevance list not found"}
-
-    relevance_list = request_data["relevance_list"]
-    relevant_article_id_list = request_data["relevant_article_id_list"]
     question = request_data["question"]
+    if question == "" or question is None:
+        return {"error": "Question not found"}
 
-    newspaper_query_assistant.add_relevance_score(
-        question, relevance_list, relevant_article_id_list
-    )
+    documents = newspaper_query_assistant.feedback_search(question)
+    similar_searches = []
+    for document in documents:
+        similar_question = document.page_content
+        similar_answer = {
+            "similarQuestion": similar_question,
+            "relevantArticleIds": document.metadata["relevant-article-ids"],
+        }
+        similar_searches.append(similar_answer)
 
-    return {"message": "Successfully added relevance score"}
+    response = {
+        "similarSearches": similar_searches,
+    }
+    return response
+
+
+@app.post("/feedback")
+async def post_feedback(request: Request):
+    request_data = await request.json()
+    if "relevancy_list" not in request_data:
+        return {"error": "Relevancy list not found"}
+
+    relevancy_list = request_data["relevancy_list"]
+
+    # check if the relevancy list contains -1
+    if -1 in relevancy_list:
+        return {"error": "Invalid relevancy list"}
+
+    article_id_list = request_data["article_id_list"]
+    question = request_data["question"]
+    newspaper_query_assistant.add_feedback(question, relevancy_list, article_id_list)
+
+    return {"message": "Successfully added feedback"}
