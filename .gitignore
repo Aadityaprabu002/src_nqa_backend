@@ -18,8 +18,8 @@ qa_engine/relevance/*.json
 # Ignore anything within the input directory
 input/*/
 
-# Ignore anything withing the ocr_engine directory
-ocr_engine/**
+# Ignore anything folder the ocr_engine directory
+ocr_engine/*/
 
 #Ignore sqlite files
 *.sqlite
