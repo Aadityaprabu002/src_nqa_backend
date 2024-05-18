@@ -10,10 +10,18 @@
   "NewspaperDatabaseCollectionName": "newspapers",
   "NewspaperDatabaseAllowReset": true,
 
-  "FeedbackPath": "./qa_engine/feedback_database/",
-  "FeedbackDatabasePath": "./qa_engine/feedback_database/",
+  "FeedbackDatabaseFolderPath": "./qa_engine/feedback_database/",
+  "FeedbackDatabaseFileName": "feedback.sqlite3",
   "FeedbackDatabaseCollectionName": "feedbacks",
   "FeedbackDatabaseAllowReset": true,
+  "FeedbackFilePath": "./qa_engine/feedback_database/feedbacks.json",
+
+  "FeedbackDatabaseCommands": {
+    "FeedbackTableDropIfExists": "DROP TABLE IF EXISTS feedbacks;",
+    "FeedbackTableCreateIfNotExist": "CREATE TABLE IF NOT EXISTS feedbacks (question_id TEXT PRIMARY KEY, article_id_list TEXT);",
+    "FeedbackTableInsert": "INSERT INTO feedbacks (question_id, article_id_list) VALUES (?, ?);",
+    "FeedbackTableFetchArticleIdListBasedOnQuestionIdLimitOne": "SELECT article_id_list FROM feedbacks WHERE question_id = ? LIMIT 1"
+  },
 
   "SentenceTransformerModel": "all-MiniLM-L6-v2",
   "RelevanceScorePath": "./qa_engine/relevance/",

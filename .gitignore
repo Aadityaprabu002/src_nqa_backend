@@ -22,4 +22,4 @@ input/*/
 ocr_engine/*/
 
 #Ignore sqlite files
-*.sqlite
+*.sqlite3

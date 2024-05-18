@@ -101,31 +101,57 @@ async def process(file: UploadFile = File(...)):
         }
 
 
-@app.get("/feedback")
-async def get_feedback(request: Request):
+@app.post("/similar_questions/")
+async def similar_questions(request: Request):
     request_data = await request.json()
     question = request_data["question"]
     if question == "" or question is None:
         return {"error": "Question not found"}
 
-    documents = newspaper_query_assistant.feedback_search(question)
-    similar_searches = []
-    for document in documents:
-        similar_question = document.page_content
-        similar_answer = {
-            "similarQuestion": similar_question,
-            "relevantArticleIds": document.metadata["relevant-article-ids"],
-        }
-        similar_searches.append(similar_answer)
+    feedback_search_results = newspaper_query_assistant.feedback_search(question)
+    response = []
+    for result in feedback_search_results:
 
-    response = {
-        "similarSearches": similar_searches,
-    }
+        data = {
+            "similarQuestion": result["question"],
+            "questionId": result["question_id"],
+            "relatedArticlesCount": result["related_articles_count"],
+        }
+        response.append(data)
+
     return response
 
 
-@app.post("/feedback")
-async def post_feedback(request: Request):
+# start from here
+# @app.post("/similar_answer/")
+# async def similar_answer(request: Request):
+#     request_data = await request.json()
+#     questionId = request_data["questionId"]
+#     if questionId == "" or questionId is None:
+#         return {"error": "QuestioId not found"}
+
+#     similar_question_answer_result = newspaper_query_assistant.similar_question_answer(
+#         questionId
+#     )
+#     res
+#     for document in similar_question_answer_result["documents"]:
+
+
+#     response = []
+#     for result in feedback_search_results:
+
+#         data = {
+#             "similarQuestion": result["question"],
+#             "questionId": result["question_id"],
+#             "relatedArticlesCount": result["related_articles_count"],
+#         }
+#         response.append(data)
+
+#     return response
+
+
+@app.post("/feedback/")
+async def feedback(request: Request):
     request_data = await request.json()
     if "relevancy_list" not in request_data:
         return {"error": "Relevancy list not found"}

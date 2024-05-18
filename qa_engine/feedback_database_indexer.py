@@ -1,7 +1,8 @@
-from langchain_community.vectorstores import Chroma
 from app_config import config
 from util.progress_bar import ProgressBar
-from feedback_database_connection import FeedbackDatabaseConnectionAndContext
+from feedback_database_connection_and_context import (
+    FeedbackDatabaseConnectionAndContext,
+)
 import json
 import uuid
 
@@ -12,21 +13,36 @@ class FeedbackDatabaseIndexer:
 
     def __init__(self, fdbcc: FeedbackDatabaseConnectionAndContext) -> None:
         self.__collection = fdbcc.get_feedback_collection()
+        self.__sqlite3_connection = fdbcc.get_sqlite3_connection()
+        self.__sqlite3_cursor = fdbcc.get_sqlite3_cursor()
+
         print("FeedbackDatabaseIndexer initialized successfully.")
+
+    def __insert_feedback(self, question_id, article_id_list):
+        self.__sqlite3_cursor.execute(
+            config["FeedbackDatabaseCommands"]["FeedbackTableInsert"],
+            (
+                question_id,
+                json.dumps(article_id_list),
+            ),
+        )
+        self.__sqlite3_connection.commit()
 
     def __update_feedback_file(
         self, question_id, question, article_id_list, relevancy_list
     ):
+
         l = len(relevancy_list)
+        print(relevancy_list)
         score = 0
         for relevancy in relevancy_list:
             score += relevancy
 
         score = score / l
         info = ""
-        path = config["FeedbackDatabasePath"]
+        path = config["FeedbackFilePath"]
 
-        with open(f"{path}/feedback.json", "r") as file:
+        with open(path, "r") as file:
             info = json.load(file)
 
         data = {
@@ -37,18 +53,15 @@ class FeedbackDatabaseIndexer:
             "relevancy-list": relevancy_list,
         }
         info.append(data)
-        with open(f"{path}/feedback.json", "w") as file:
+        with open(path, "w") as file:
             json.dump(info, file)
 
-    def add_feedback(self, feedback):
+    def add_feedback(self, question, article_id_list, relevancy_list):
         metadatas = []
 
-        progress_bar = ProgressBar(2, "Indexing feedbacks")
+        progress_bar = ProgressBar(3, "Indexing feedbacks")
 
         question_id = str(uuid.uuid4())
-        question = feedback["question"]
-        article_id_list = feedback["article-id-list"]
-        relevancy_list = feedback["relevancy-list"]
 
         self.__update_feedback_file(
             question_id, question, article_id_list, relevancy_list
@@ -61,7 +74,6 @@ class FeedbackDatabaseIndexer:
                 relevant_article_id_list.append(article_id_list[i])
 
         metadatas = {
-            "relevant-article-id-list": relevant_article_id_list,
             "question-id": question_id,
         }
         document = f"""{question}"""
@@ -69,4 +81,8 @@ class FeedbackDatabaseIndexer:
 
         progress_bar.update()
         self.__collection.add(documents=document, metadatas=metadatas, ids=id)
+
+        progress_bar.update()
+        self.__insert_feedback(question_id, relevant_article_id_list)
+
         progress_bar.complete()

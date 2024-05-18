@@ -53,7 +53,8 @@ class NewspaperQueryAssistant:
             self.feedback_database_connection_and_context
         )
         self.feedback_database_searcher = FeedbackDatabaseSearcher(
-            self.feedback_database_connection_and_context
+            self.feedback_database_connection_and_context,
+            self.newspaper_database_connection_and_context,
         )
 
         print("NewspaperQueryAssistant initialized successfully.")
@@ -165,7 +166,26 @@ class NewspaperQueryAssistant:
 
     def feedback_search(self, question):
         documents = self.feedback_database_searcher.search(question)
-        return documents
+        feedback_search_results = []
+        for document in documents:
+            question = document.page_content
+            question_id = document.metadata["question-id"]
+            info = self.feedback_database_searcher.fetch_info_about_related_articles(
+                question_id
+            )
+            data = {
+                "question": question,
+                "question_id": question_id,
+            }
+            feedback_search_results.append(data)
+
+        return feedback_search_results
+
+    def similar_question_answer(self, question_id):
+        similar_question_answer_result = (
+            self.feedback_database_searcher.fetch_related_articles(question_id)
+        )
+        return similar_question_answer_result
 
     def answer(self, question):
 
@@ -178,9 +198,7 @@ class NewspaperQueryAssistant:
         return answers, documents
 
     def add_feedback(self, question, relevancy_list, article_id_list):
-        feedback = {
-            "question": question,
-            "relevancy-list": relevancy_list,
-            "article-id-list": article_id_list,
-        }
-        self.feedback_database_indexer.add_feedback(feedback)
+
+        self.feedback_database_indexer.add_feedback(
+            question, article_id_list, relevancy_list
+        )

@@ -4,7 +4,7 @@ from langchain_community.document_loaders import JSONLoader
 from langchain_community.vectorstores import Chroma
 from app_config import config
 from util.progress_bar import ProgressBar
-from newspaper_database_connection import NewspaperDatabaseConnectionAndContext
+from qa_engine.newspaper_database_connection_and_context import NewspaperDatabaseConnectionAndContext
 
 
 class NewspaperDatabaseSearcher:
