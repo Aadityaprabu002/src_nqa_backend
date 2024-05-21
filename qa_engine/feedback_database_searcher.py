@@ -73,7 +73,7 @@ class FeedbackDatabaseSearcher:
             return []
 
         result = self.__collection.get(ids=article_id_list)
-
+        
         progress_bar.update()
         progress_bar.complete()
         return result

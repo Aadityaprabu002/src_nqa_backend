@@ -74,7 +74,7 @@ async def answer(request: Request):
         }
         articles.append(article)
 
-    response = {"articles": articles}
+    response = {"articles": articles, "canFeedback": True}
 
     return response
 
@@ -101,16 +101,16 @@ async def process(file: UploadFile = File(...)):
         }
 
 
-@app.post("/similar_questions/")
-async def similar_questions(request: Request):
+@app.post("/similar_question/")
+async def similar_question(request: Request):
     request_data = await request.json()
     question = request_data["question"]
     if question == "" or question is None:
         return {"error": "Question not found"}
 
-    feedback_search_results = newspaper_query_assistant.feedback_search(question)
+    similar_question_results = newspaper_query_assistant.similar_question(question)
     response = []
-    for result in feedback_search_results:
+    for result in similar_question_results:
 
         data = {
             "similarQuestion": result["question"],
@@ -122,32 +122,52 @@ async def similar_questions(request: Request):
     return response
 
 
-# start from here
-# @app.post("/similar_answer/")
-# async def similar_answer(request: Request):
-#     request_data = await request.json()
-#     questionId = request_data["questionId"]
-#     if questionId == "" or questionId is None:
-#         return {"error": "QuestioId not found"}
+@app.post("/similar_answer/")
+async def similar_answer(request: Request):
+    request_data = await request.json()
+    questionId = request_data["questionId"]
+    question = request_data["question"]
+    if questionId == "" or questionId is None:
+        return {"error": "QuestionId not found"}
 
-#     similar_question_answer_result = newspaper_query_assistant.similar_question_answer(
-#         questionId
-#     )
-#     res
-#     for document in similar_question_answer_result["documents"]:
+    related_article_result = newspaper_query_assistant.related_article(questionId)
+    print(related_article_result)
+    answers = newspaper_query_assistant.answer_from_result(
+        question, related_article_result
+    )
 
+    documents_count = len(related_article_result["documents"])
 
-#     response = []
-#     for result in feedback_search_results:
+    articles = []
+    for index in range(documents_count):
+        document = related_article_result["documents"][index]
+        page_content = document
+        title = page_content.split("Body:")[0].split("Title:")[1]
+        body = page_content.split("Body:")[1].split("Author:")[0]
+        author = page_content.split("Author:")[1]
+        image_path = related_article_result["metadatas"][index]["article-image-path"]
+        page_index = related_article_result["metadatas"][index]["article-page-index"]
+        id = related_article_result["metadatas"][index]["article-id"]
+        image = None
 
-#         data = {
-#             "similarQuestion": result["question"],
-#             "questionId": result["question_id"],
-#             "relatedArticlesCount": result["related_articles_count"],
-#         }
-#         response.append(data)
+        with open(image_path, "rb") as file:
+            image = file.read()
 
-#     return response
+        image_base64 = base64.b64encode(image).decode("utf-8")
+        article = {
+            "title": title,
+            "body": body,
+            "author": author,
+            "pageIndex": page_index,
+            "image": image_base64,
+            "extractedSentence": answers[index]["sentence"],
+            "extractedAnswer": answers[index]["answer"],
+            "id": id,
+        }
+        articles.append(article)
+
+    response = {"articles": articles, "canFeedback": False}
+    return response
 
 
 @app.post("/feedback/")

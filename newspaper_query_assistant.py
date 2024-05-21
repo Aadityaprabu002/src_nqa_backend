@@ -160,13 +160,15 @@ class NewspaperQueryAssistant:
 
         self.__setup_qa(current_predict_folder_path)
 
-    def show(self, question):
-        documents = self.newspaper_database_searcher.search(question)
-        return documents
+    def add_feedback(self, question, relevancy_list, article_id_list):
 
-    def feedback_search(self, question):
+        self.feedback_database_indexer.add_feedback(
+            question, article_id_list, relevancy_list
+        )
+
+    def similar_question(self, question):
         documents = self.feedback_database_searcher.search(question)
-        feedback_search_results = []
+        similar_question_results = []
         for document in documents:
             question = document.page_content
             question_id = document.metadata["question-id"]
@@ -176,29 +178,40 @@ class NewspaperQueryAssistant:
             data = {
                 "question": question,
                 "question_id": question_id,
+                "related_articles_count": info["related_articles_count"],
             }
-            feedback_search_results.append(data)
+            similar_question_results.append(data)
 
-        return feedback_search_results
+        return similar_question_results
 
-    def similar_question_answer(self, question_id):
-        similar_question_answer_result = (
-            self.feedback_database_searcher.fetch_related_articles(question_id)
+    def related_article(self, question_id):
+        related_article_result = self.feedback_database_searcher.fetch_related_articles(
+            question_id
         )
-        return similar_question_answer_result
+        return related_article_result
+
+    def answer_from_result(self, question, result):
+        answers = []
+        for document in result["documents"]:
+            context = document
+            answer = self.newspaper_question_answerer.extract_answer_from_context(
+                question, context
+            )
+            answers.append(answer)
+        return answers
 
     def answer(self, question):
 
         documents = self.show(question)
         answers = []
         for document in documents:
-            answer = self.newspaper_question_answerer.extract_answer(question, document)
+            answer = self.newspaper_question_answerer.extract_answer_from_document(
+                question, document
+            )
             answers.append(answer)
 
         return answers, documents
 
-    def add_feedback(self, question, relevancy_list, article_id_list):
-
-        self.feedback_database_indexer.add_feedback(
-            question, article_id_list, relevancy_list
-        )
+    def show(self, question):
+        documents = self.newspaper_database_searcher.search(question)
+        return documents

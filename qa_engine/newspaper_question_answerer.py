@@ -1,25 +1,26 @@
 from transformers import pipeline
 from util.progress_bar import ProgressBar
 from langchain_core.documents import Document
+from chromadb import GetResult
 
 
 class NewspaperQuestionAnswerer:
 
     def __init__(self):
-        self.roberta = pipeline(
+        self.model = pipeline(
             "question-answering",
             model="deepset/roberta-base-squad2",
             tokenizer="deepset/roberta-base-squad2",
         )
         print("ArticleQuestionAnswering model loaded successfully.")
 
-    def extract_answer(self, question, document: Document):
+    def extract_answer_from_document(self, question, document: Document):
 
         progress_bar = ProgressBar(total=3, description="Extracting answer")
 
         page_conent = document.page_content
         qa_input = {"context": page_conent, "question": question}
-        result = self.roberta(qa_input)
+        result = self.model(qa_input)
 
         progress_bar.update()
 
@@ -42,4 +43,9 @@ class NewspaperQuestionAnswerer:
         progress_bar.update()
         progress_bar.complete()
         answer = {"answer": result, "sentence": sentence}
+        return answer
+
+    def extract_answer_from_context(self, question, context):
+        document = Document(page_content=context)
+        answer = self.extract_answer_from_document(question, document)
         return answer
