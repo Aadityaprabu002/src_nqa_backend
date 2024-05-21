@@ -14,6 +14,7 @@ qa_engine/database/*.sqlite3
 # Ignore anything within the relevance directory
 qa_engine/feedback_database/*/
 qa_engine/feedback_database/*.json
+qa_engine/feedback_database/*.sqlite3
 
 # Ignore anything within the input directory
 input/*/
