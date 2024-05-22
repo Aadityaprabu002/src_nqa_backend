@@ -4,7 +4,9 @@ sys.path.append("./model")
 sys.path.append("./util")
 sys.path.append("./trained_model")
 sys.path.append("./qa_engine")
+sys.path.append("./analytics_engine")
 
+from analytics_engine import *
 from qa_engine import *
 from trained_model import *
 from util import *
@@ -57,6 +59,11 @@ class NewspaperQueryAssistant:
             self.newspaper_database_connection_and_context,
         )
 
+        self.newspaper_analytics_database = NewspaperAnalyticsDatabase()
+        self.newspaper_analytics_classifier = NewspaperAnalyticsClassifier(
+            self.newspaper_analytics_database
+        )
+
         print("NewspaperQueryAssistant initialized successfully.")
 
     def __save_info(self, page_folder_path, page_info):
@@ -84,6 +91,9 @@ class NewspaperQueryAssistant:
         print("Setting up QA")
         self.__save_newspaper_info(current_predict_folder_path)
         self.newspaper_database_indexer.add_articles(self.newspaper_info["articles"])
+        path = f"{current_predict_folder_path}/newspaper_info.json"
+        result = self.newspaper_analytics_classifier.classify(path)
+        self.newspaper_analytics_database.update_analytics_data(result)
 
     def load_newspaper_database(self, predict_folder_name):
         current_predict_folder_path = (
@@ -215,3 +225,6 @@ class NewspaperQueryAssistant:
     def show(self, question):
         documents = self.newspaper_database_searcher.search(question)
         return documents
+
+    def analytics(self):
+        return self.newspaper_analytics_database.get_analytics_data()

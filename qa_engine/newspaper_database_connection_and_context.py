@@ -27,10 +27,7 @@ class NewspaperDatabaseConnectionAndContext:
             client=self.__chroma_client,
             collection_name=config["NewspaperDatabaseCollectionName"],
         )
-        os.makedirs(config["RelevanceScorePath"], exist_ok=True)
-        path = f"{config['RelevanceScorePath']}/relevance_score.json"
-        with open(path, "w") as file:
-            json.dump([], file)
+
         print("NewspaperDatabaseConnectionAndContext initialized successfully.")
 
     def __reset(self):

@@ -131,7 +131,6 @@ async def similar_answer(request: Request):
         return {"error": "QuestionId not found"}
 
     related_article_result = newspaper_query_assistant.related_article(questionId)
-    print(related_article_result)
     answers = newspaper_query_assistant.answer_from_result(
         question, related_article_result
     )
@@ -187,3 +186,15 @@ async def feedback(request: Request):
     newspaper_query_assistant.add_feedback(question, relevancy_list, article_id_list)
 
     return {"message": "Successfully added feedback"}
+
+
+@app.get("/analytics/")
+async def get_analytics():
+    analytics = newspaper_query_assistant.analytics()
+    response = {
+        "articleCount": analytics["article_count"],
+        "adCount": analytics["ad_count"],
+        "newspaperCount": analytics["newspaper_count"],
+        "articleCategory": analytics["article_category"],
+    }
+    return response

@@ -23,7 +23,12 @@
     "FeedbackTableFetchArticleIdListBasedOnQuestionIdLimitOne": "SELECT article_id_list FROM feedbacks WHERE question_id = ? LIMIT 1"
   },
 
+  "AnalyticsDatabaseFolderPath": "./analytics_engine/analytics_database/",
+  "AnalyticsFilePath": "./analytics_engine/analytics_database/analytics.json",
+
   "SentenceTransformerModel": "all-MiniLM-L6-v2",
   "RelevanceScorePath": "./qa_engine/relevance/",
-  "OcrEnginePath": "./ocr_engine/tesseract/tesseract.exe"
+  "OcrEnginePath": "./ocr_engine/tesseract/tesseract.exe",
+
+  "ClassifierModel": "IT-community/distilBART_cnn_news_text_classification"
 }

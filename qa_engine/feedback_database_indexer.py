@@ -33,7 +33,6 @@ class FeedbackDatabaseIndexer:
     ):
 
         l = len(relevancy_list)
-        print(relevancy_list)
         score = 0
         for relevancy in relevancy_list:
             score += relevancy

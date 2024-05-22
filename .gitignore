@@ -15,6 +15,7 @@ qa_engine/database/*.sqlite3
 qa_engine/feedback_database/*/
 qa_engine/feedback_database/*.json
 qa_engine/feedback_database/*.sqlite3
+qa_engine/feedback_database/chroma.sqlite3
 
 # Ignore anything within the input directory
 input/*/
