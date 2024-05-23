@@ -6,6 +6,7 @@ from langchain_community.vectorstores import Chroma
 import os
 import json
 import sqlite3
+from util import ProgressBar
 
 
 class FeedbackDatabaseConnectionAndContext:
@@ -53,6 +54,34 @@ class FeedbackDatabaseConnectionAndContext:
             json.dump([], file)
 
         print("FeedbackDatabaseConnectionAndContext initialized successfully.")
+
+    def clear(self):
+        def clear_folder(folder_path):
+            for file_name in os.listdir(folder_path):
+                if file_name in [
+                    ".gitkeep",
+                    "chroma.sqlite3",
+                    "feedbacks.json",
+                    "feedback.sqlite3",
+                ]:
+                    continue
+                file_path = f"{folder_path}/{file_name}"
+                if os.path.isdir(file_path):
+                    clear_folder(file_path)
+                else:
+                    os.remove(file_path)
+            if folder_path != config["FeedbackDatabaseFolderPath"]:
+                os.rmdir(folder_path)
+
+        path = config["FeedbackDatabaseFolderPath"]
+        progress_bar = ProgressBar(2, "Clearing Feedback Database")
+        progress_bar.update()
+        clear_folder(path)
+        progress_bar.update()
+
+        progress_bar.complete()
+
+        print("FeedbackDatabaseConnectionAndContext cleared successfully.")
 
     def __reset(self):
         self.__chroma_client.reset()

@@ -6,7 +6,7 @@
   "RootOutputPath": "./output",
   "RootInputPath": "./input",
 
-  "NewspaperDatabasePath": "./qa_engine/database/",
+  "NewspaperDatabaseFolderPath": "./qa_engine/database/",
   "NewspaperDatabaseCollectionName": "newspapers",
   "NewspaperDatabaseAllowReset": true,
 

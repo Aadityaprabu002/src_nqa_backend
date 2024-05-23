@@ -30,6 +30,10 @@ class NewspaperAnalyticsDatabase:
 
         print("NewspaperAnalyticsDatabaseConnection initialized successfully.")
 
+    def clear(self):
+        with open(self.__path, "w") as file:
+            json.dump(self.__template, file)
+
     def __get_analytics_data(self):
         data = dict()
         with open(self.__path, "r") as file:

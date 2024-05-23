@@ -63,8 +63,37 @@ class NewspaperQueryAssistant:
         self.newspaper_analytics_classifier = NewspaperAnalyticsClassifier(
             self.newspaper_analytics_database
         )
-
+        self.__clear_output_folder()
+        self.__clear_analytics_database()
+        self.__clear_qa_database()
         print("NewspaperQueryAssistant initialized successfully.")
+
+    def __clear_output_folder(self):
+        def clear_folder(folder_path):
+            for file_name in os.listdir(folder_path):
+                if file_name == ".gitkeep":
+                    continue
+                file_path = f"{folder_path}/{file_name}"
+                if os.path.isdir(file_path):
+                    clear_folder(file_path)
+                else:
+                    os.remove(file_path)
+            if folder_path != config["RootOutputPath"]:
+                os.rmdir(folder_path)
+
+        root_output_folder_path = config["RootOutputPath"]
+        progress_bar = ProgressBar(2, "Clearing Output folder")
+        progress_bar.update()
+        clear_folder(root_output_folder_path)
+        progress_bar.update()
+        progress_bar.complete()
+
+    def __clear_analytics_database(self):
+        self.newspaper_analytics_database.clear()
+
+    def __clear_qa_database(self):
+        self.feedback_database_connection_and_context.clear()
+        self.newspaper_database_connection_and_context.clear()
 
     def __save_info(self, page_folder_path, page_info):
         save_path = f"{page_folder_path}/info.json"
@@ -95,29 +124,13 @@ class NewspaperQueryAssistant:
         result = self.newspaper_analytics_classifier.classify(path)
         self.newspaper_analytics_database.update_analytics_data(result)
 
-    def load_newspaper_database(self, predict_folder_name):
-        current_predict_folder_path = (
-            f"{config['RootOutputPath']}/{predict_folder_name}"
-        )
-        try:
-
-            with open(
-                f"{current_predict_folder_path}/newspaper_info.json", "r"
-            ) as file:
-                self.newspaper_info = dict(json.load(file))
-
-            self.newspaper_database_indexer.add_articles(
-                self.newspaper_info["articles"]
-            )
-
-        except:
-            return False
-        return True
-
     def process_pdf(self, pdf_path):
+
+        self.newspaper_info = {"articles": [], "ads": []}
+
         root_output_folder_path = config["RootOutputPath"]
         current_predict_folder_name = (
-            f"predict{len(os.listdir(root_output_folder_path)) + 1}"
+            f"predict{len(os.listdir(root_output_folder_path))}"
         )
         current_predict_folder_path = (
             f"{root_output_folder_path}/{current_predict_folder_name}"
